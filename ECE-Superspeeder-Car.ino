@@ -1,3 +1,4 @@
+#include "Control.h"
 
 // Define the states
 const int REST = 0;
@@ -7,6 +8,9 @@ const int DONUT = 3;
 
 // current state of the car
 int state = REST;
+
+Control left(-1, -1, -1);
+Contorl right(-1, -1, -1);
 
 void setup() {
 }
@@ -18,16 +22,19 @@ void loop() {
 		break;
 
 		case FOLLOW_PATH:
+			followpath(); 
 		break;
 
 		case FIND_PATH:
+			findPath();
 		break;
 
 		case DONUT:
+			donut();
 		break;
 
 		default:
-		state = REST;
+			state = REST;
 		break; 
 	}
 }
