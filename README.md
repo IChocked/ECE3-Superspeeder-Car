@@ -11,7 +11,7 @@ git checkout my-branch		// If the branch already exists
 ```
 
 ## Timeline
-- [ ] Pins mapped and sensors calibrated using sensor fusion with differing weights
+- [x] Pins mapped and sensors calibrated using sensor fusion with differing weights
 - [ ] Code structure finalized and filled in. Deliverable is basic moving car of any form
 - [ ] Optimize for robustness
 - [ ] Optimize for speed
