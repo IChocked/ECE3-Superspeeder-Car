@@ -18,4 +18,4 @@ git checkout my-branch		// If the branch already exists
 - [ ] Write report
 
 
-11/10/2020 - commited initial working code that normalizes sensors, sums the data, responds based on the input and succesfully navigates the course to completion each time, pushed              to main branch under model_denver_working.ino
+11/10/2020 - commited initial working code that normalizes sensors, sums the data, responds based on the input and succesfully navigates the course to completion each time, pushed              to main branch under working_model_denver.ino
