@@ -12,7 +12,10 @@ git checkout my-branch		// If the branch already exists
 
 ## Timeline
 - [x] Pins mapped and sensors calibrated using sensor fusion with differing weights
-- [ ] Code structure finalized and filled in. Deliverable is basic moving car of any form
+- [x] Code structure finalized and filled in. Deliverable is basic moving car of any form
 - [ ] Optimize for robustness
 - [ ] Optimize for speed
 - [ ] Write report
+
+
+//11/10/2020 commited initial working code that normalizes sensors, sums the data, responds based on the input and succesfully navigates the course to completion each time pushed to main branch under denvers working model
