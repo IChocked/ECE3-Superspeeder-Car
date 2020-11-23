@@ -7,10 +7,6 @@ Control::Control(double kp_l, double ki_l, double kd_l, double kp_r, double ki_r
 	this->kp_right = kp_r;
 	this->ki_right = ki_r;
 	this->kd_right = kd_r;
-
-	ECE3_Init();
-//	Serial.begin(9600);
-//	delay(200);
 }
 
 
@@ -34,13 +30,13 @@ Control::Output Control::Update() {
 			// output max - PID weighted for right motor
 
 	if (abs(weightedSum) < theshold) {
-		return Output{255, 255}; // TODO this needs to be scaled based on PID
+		return Output{MAX_SPEED, MAX_SPEED}; // TODO this needs to be scaled based on PID
 	}
-	else if (weightedSum < 0) { // veered too far right
-		return Output{(1.0-percent_left) * 255, percent_right * 255};
+	else if (weightedSum > 0) { // veered too far right
+		return Output{(1.0-percent_left) * MAX_SPEED, MAX_SPEED};
 	}
-	else if (weightedSum >= 0) {
-		return Output{percent_left * 255, (1.0-percent_right) * 255};
+	else if (weightedSum <= 0) { // veered too far left
+		return Output{MAX_SPEED, (1.0-percent_right) * MAX_SPEED};
 	}
 
 	return Output{-1, -1};
@@ -49,23 +45,39 @@ Control::Output Control::Update() {
 double Control::fuseSensors() {
 	ECE3_read_IR(sensorValues);
 
-	sensorValues[0]=abs((sensorValues[0]-630.4)*(1000/1397.8)) * -8;
-	sensorValues[1]=abs((sensorValues[1]-540)*(1000/1229.6)) * -4;
-	sensorValues[2]=abs((sensorValues[2]-630.4)*(1000/1513.0)) * -2;
-	sensorValues[3]=abs((sensorValues[3]-630.8)*(1000/1082.8)) * -1;
-	sensorValues[4]=abs((sensorValues[4]-562.2)*(1000/904.2)) * 1;
-	sensorValues[5]=abs((sensorValues[5]-675.4)*(1000/1094.2)) * 2;
-	sensorValues[6]=abs((sensorValues[6]-653.6)*(1000/1394.8)) * 4;
-	sensorValues[7]=abs((sensorValues[7]-721.8)*(1000/581.0)) * 8;
+//   for (unsigned char i = 0; i < 8; i++) {
+//  
+//      Serial.print(sensorValues[i]);
+//      Serial.print("\t");
+//    }
+//   Serial.println();
+
+	sensorValues[0]=abs((sensorValues[0]-630.4)*(1000/1397.8));
+	sensorValues[1]=abs((sensorValues[1]-540.0)*(1000/1229.6));
+	sensorValues[2]=abs((sensorValues[2]-630.4)*(1000/1513.0));
+	sensorValues[3]=abs((sensorValues[3]-630.8)*(1000/1082.8));
+	sensorValues[4]=abs((sensorValues[4]-562.2)*(1000/904.2));
+	sensorValues[5]=abs((sensorValues[5]-675.4)*(1000/1094.2));
+	sensorValues[6]=abs((sensorValues[6]-653.6)*(1000/1394.8));
+	sensorValues[7]=abs((sensorValues[7]-721.8)*(1000/581.0));
 
 	double weightedSum = 0;
+  weightedSum -= sensorValues[0]*8;
+  weightedSum -= sensorValues[1]*4;
+  weightedSum -= sensorValues[2]*2;
+  weightedSum -= sensorValues[3]*1;//adds negative weight to the first 4 sensors -8 ,-4, -2, and -1 from right to center, then adds it to the sum
+  weightedSum += sensorValues[4]*1;
+  weightedSum += sensorValues[5]*2;
+  weightedSum += sensorValues[6]*4;
+  weightedSum += sensorValues[7]*8;//adds positive weight to the final four sensors 1, 2, 4, and 8 from center to left, then adds it to the sum
+ 
 	for (unsigned char i = 0; i < 8; i++) {
-		weightedSum += sensorValues[i];
-
 		Serial.print(sensorValues[i]);
 		Serial.print("\t");
 	}
- Serial.println();
+ Serial.print(weightedSum);
+ Serial.print("\t");
+// Serial.println();
 
 	return weightedSum;
 }

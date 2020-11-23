@@ -1,11 +1,13 @@
 // Min values to negate noise
 const int theshold = 1000;
-const double max_sensor_sum = 15000.0; // 8k + 4k + 2k + 1k
+const double max_sensor_sum = 8000.0;
 
 // PID constants
-const int KP_L = 1;
-const int KI_L = 0;
-const int KD_L = 0;
-const int KP_R = 1;
-const int KI_R = 0;
-const int KD_R = 0;
+const double KP_L = 0.95;
+const double KI_L = 0;
+const double KD_L = 0;
+const double KP_R = 1;
+const double KI_R = 0;
+const double KD_R = 0;
+
+const int MAX_SPEED = 20;

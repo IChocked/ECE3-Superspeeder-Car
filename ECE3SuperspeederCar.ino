@@ -34,7 +34,11 @@ void setup() {
   digitalWrite(right_nslp_pin,HIGH);
   
   state = FOLLOW_PATH;
+  
   Serial.begin(9600);
+  Serial.println("Started");
+  ECE3_Init();
+  delay(2000);
 }
 
 void loop() {
@@ -44,7 +48,7 @@ void loop() {
 		break;
 
 		case FOLLOW_PATH:
-		followPath();
+	  	followPath();
 		break;
 
 		case FIND_PATH:
@@ -71,6 +75,10 @@ void followPath() {
 		digitalWrite(right_nslp_pin, HIGH);
 
 		Control::Output output = control.Update();
+    Serial.print(output.left);
+    Serial.print("\t");
+    Serial.print(output.right);
+    Serial.println();
 		analogWrite(left_pwm_pin, output.left);
 		analogWrite(right_pwm_pin, output.right);
 
