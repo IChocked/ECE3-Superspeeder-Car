@@ -53,12 +53,12 @@ double Control::fuseSensors() {
 
 	double weightedSum = 0;
   weightedSum -= sensorValues[0]*8;
-  weightedSum -= sensorValues[1]*6;
-  weightedSum -= sensorValues[2]*4;
-  weightedSum -= sensorValues[3]*2;//adds negative weight to the first 4 sensors -8 ,-4, -2, and -1 from right to center, then adds it to the sum
-  weightedSum += sensorValues[4]*2;
-  weightedSum += sensorValues[5]*4;
-  weightedSum += sensorValues[6]*6;
+  weightedSum -= sensorValues[1]*4;
+  weightedSum -= sensorValues[2]*2;
+  weightedSum -= sensorValues[3]*1;//adds negative weight to the first 4 sensors -8 ,-4, -2, and -1 from right to center, then adds it to the sum
+  weightedSum += sensorValues[4]*1;
+  weightedSum += sensorValues[5]*2;
+  weightedSum += sensorValues[6]*4;
   weightedSum += sensorValues[7]*8;//adds positive weight to the final four sensors 1, 2, 4, and 8 from center to left, then adds it to the sum
  
 	for (unsigned char i = 0; i < 8; i++) {
