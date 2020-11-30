@@ -42,14 +42,14 @@ Control::Output Control::Update() {
 double Control::fuseSensors() {
 	ECE3_read_IR(sensorValues);
 
-	sensorValues[0]=abs((sensorValues[0]-630.4)*(1000/1397.8));
-	sensorValues[1]=abs((sensorValues[1]-540.0)*(1000/1229.6));
-	sensorValues[2]=abs((sensorValues[2]-630.4)*(1000/1513.0));
-	sensorValues[3]=abs((sensorValues[3]-630.8)*(1000/1082.8));
-	sensorValues[4]=abs((sensorValues[4]-562.2)*(1000/904.2));
-	sensorValues[5]=abs((sensorValues[5]-675.4)*(1000/1094.2));
-	sensorValues[6]=abs((sensorValues[6]-653.6)*(1000/1394.8));
-	sensorValues[7]=abs((sensorValues[7]-721.8)*(1000/581.0));
+	sensorValues[0]=abs((sensorValues[0]-745.0)*(1000/1755.0));
+	sensorValues[1]=abs((sensorValues[1]-683.3)*(1000/1738.0));
+	sensorValues[2]=abs((sensorValues[2]-607.3)*(1000/1814.0));
+	sensorValues[3]=abs((sensorValues[3]-563.3)*(1000/1276.0));
+	sensorValues[4]=abs((sensorValues[4]-608.0)*(1000/1394.6));
+	sensorValues[5]=abs((sensorValues[5]-615.3)*(1000/1884.6));
+	sensorValues[6]=abs((sensorValues[6]-525.6)*(1000/1547.6));
+	sensorValues[7]=abs((sensorValues[7]-631)*(1000/1869.0));
 
 	double weightedSum = 0;
   weightedSum -= sensorValues[0]*8;
