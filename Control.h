@@ -7,12 +7,11 @@
 class Control {
 	private:
 		// PID constants
-		double kp_left;
-		double ki_left;
-		double kd_left;
-    double kp_right;
-    double ki_right;
-    double kd_right;
+		double kp;
+		double ki;
+		double kd;
+    double last_err;
+    
 		uint16_t sensorValues[8]; // right -> left, 0 -> 7
 
 
@@ -25,7 +24,7 @@ class Control {
     	int left, right; // [0,255]
 		};
 
-		Control(double kp_l, double ki_l, double kd_l, double kp_r, double ki_r, double kd_r);
+		Control(double kp, double ki, double kd);
 		Output Update(); // returns # [0,255] as % output for the motor, cleaned up and scaled
 		uint16_t* getSensorValues();
 

@@ -18,7 +18,10 @@ const int right_pwm_pin=39;
 
 const int LED_RF = 41;
 
-Control control(KP_L, KI_L, KD_L, KP_R, KI_R, KD_R);
+Control control(kp, ki, kd);
+
+bool goingOut = true;
+unsigned long start_time;
 
 void setup() {
 	pinMode(left_nslp_pin,OUTPUT);
@@ -33,7 +36,8 @@ void setup() {
   digitalWrite(right_dir_pin,LOW);
   digitalWrite(right_nslp_pin,HIGH);
   
-  state = FOLLOW_PATH;
+  state = FIND_PATH;
+  start_time = millis();
   
   Serial.begin(9600);
   Serial.println("Started");
@@ -44,7 +48,8 @@ void setup() {
 void loop() {
 	switch (state) {
 		case REST:
-			delay(50);
+      driveOut(LOW, LOW, 0, 0);
+			delay(1000);
 		break;
 
 		case FOLLOW_PATH:
@@ -63,46 +68,75 @@ void loop() {
 			state = REST;
 		break;
 	}
+ delay(20);
+ Serial.println();
 }
 
 // Goes along the path until the car reaches the end section, then drops into donut state
 void followPath() {
-
+  
 	// Sample execution
 		// Run control loop for left and right wheels
 		// check if the path is the end section (if yes --> state = DONUT;)
-		digitalWrite(left_nslp_pin, HIGH);
-		digitalWrite(right_nslp_pin, HIGH);
 
 		Control::Output output = control.Update();
     Serial.print(output.left);
     Serial.print("\t");
     Serial.print(output.right);
-    Serial.println();
-		analogWrite(left_pwm_pin, output.left);
-		analogWrite(right_pwm_pin, output.right);
 
 		if (isAtEndOfPath()) {
-//			state = DONUT;
+      driveOut(LOW, LOW, 0, 0);
+			state = DONUT;
 		}
+
+   driveOut(LOW, LOW, output.left, output.right);
 }
 
 // Searches for the path, then drops into follow_path state when it is found
-void findPath() {}
-void donut() {
-	// Check if this is the ending place or the turn around place (if end, drop into rest state)
-	// Check if finished yet
-	// drive motors full speed in opposite directions
-	// drop into find_path state
+void findPath() {
+  // sine wave of increasing amplitude with time
+    control.Update();
+    uint16_t* sensorValues = control.getSensorValues();
+    for (int i = 0; i < 8; i++) {
+      if (sensorValues[i] > ON_DARK_VALUE) { // found it
+        state = FOLLOW_PATH;
+        return;
+      }
+    }
+    if (millis() - start_time < SEARCH_TIME) { // left curve
+      driveOut(LOW, LOW, MAX_SPEED / 2, MAX_SPEED);
+    } else { //right curve
+      driveOut(LOW, LOW, MAX_SPEED, MAX_SPEED / 2);
+    }
+    
 }
 
-// Are all of the sensor values above 800?
+void donut() {
+  if (!goingOut) {
+    state = REST;
+    return;
+  }
+  driveOut(LOW, HIGH, DONUT_SPEED, DONUT_SPEED);
+  delay(DONUT_TIME);
+  driveOut(LOW, LOW, 0, 0);
+  goingOut = false;
+  state = FOLLOW_PATH;
+}
+
 bool isAtEndOfPath() {
 	uint16_t* sensorValues = control.getSensorValues();
 	for (int i = 0; i < 8; i++) {
-		if (abs(sensorValues[i]) < 800) {
+		if (abs(sensorValues[i]) < ON_DARK_VALUE) {
 			return false;
 		}
 	}
 	return true;
+}
+
+// Actually output drive commands. Makes it easy to comment out output and collect test data
+void driveOut(int left_dir, int right_dir, int left_PWM, int right_PWM) {
+  digitalWrite(left_dir_pin, left_dir);
+  digitalWrite(right_dir_pin,right_dir);
+  analogWrite(left_pwm_pin, left_PWM);
+  analogWrite(right_pwm_pin, right_PWM);
 }
