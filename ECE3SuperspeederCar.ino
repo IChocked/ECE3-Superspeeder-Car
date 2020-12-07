@@ -36,16 +36,16 @@ void setup() {
   digitalWrite(right_dir_pin,LOW);
   digitalWrite(right_nslp_pin,HIGH);
   
-  state = FIND_PATH;
+  state = FOLLOW_PATH;
   start_time = millis();
   
-  Serial.begin(9600);
   Serial.println("Started");
   ECE3_Init();
   delay(2000);
 }
 
 void loop() {
+//  control.Update();
 	switch (state) {
 		case REST:
       driveOut(LOW, LOW, 0, 0);
@@ -68,28 +68,19 @@ void loop() {
 			state = REST;
 		break;
 	}
- delay(20);
+ delay(10);
  Serial.println();
 }
 
 // Goes along the path until the car reaches the end section, then drops into donut state
 void followPath() {
-  
-	// Sample execution
-		// Run control loop for left and right wheels
-		// check if the path is the end section (if yes --> state = DONUT;)
-
 		Control::Output output = control.Update();
-    Serial.print(output.left);
-    Serial.print("\t");
-    Serial.print(output.right);
+    driveOut(LOW, LOW, output.left, output.right);
 
 		if (isAtEndOfPath()) {
       driveOut(LOW, LOW, 0, 0);
 			state = DONUT;
 		}
-
-   driveOut(LOW, LOW, output.left, output.right);
 }
 
 // Searches for the path, then drops into follow_path state when it is found
@@ -118,19 +109,21 @@ void donut() {
   }
   driveOut(LOW, HIGH, DONUT_SPEED, DONUT_SPEED);
   delay(DONUT_TIME);
-  driveOut(LOW, LOW, 0, 0);
+  driveOut(LOW, LOW, MAX_SPEED, MAX_SPEED);
+  delay(150);
   goingOut = false;
   state = FOLLOW_PATH;
 }
 
 bool isAtEndOfPath() {
+  int total = 0;
 	uint16_t* sensorValues = control.getSensorValues();
 	for (int i = 0; i < 8; i++) {
-		if (abs(sensorValues[i]) < ON_DARK_VALUE) {
-			return false;
+		if (abs(sensorValues[i]) >= ON_DARK_VALUE) {
+      total++;
 		}
 	}
-	return true;
+	return (total >= MIN_ON_DARK);
 }
 
 // Actually output drive commands. Makes it easy to comment out output and collect test data
