@@ -39,7 +39,6 @@ void setup() {
   state = FOLLOW_PATH;
   start_time = millis();
   
-  Serial.println("Started");
   ECE3_Init();
   delay(2000);
 }
@@ -69,7 +68,6 @@ void loop() {
 		break;
 	}
  delay(10);
- Serial.println();
 }
 
 // Goes along the path until the car reaches the end section, then drops into donut state
@@ -81,11 +79,13 @@ void followPath() {
       driveOut(LOW, LOW, 0, 0);
 			state = DONUT;
 		}
+   if (offPath()) {
+      state = FIND_PATH;
+   }
 }
 
 // Searches for the path, then drops into follow_path state when it is found
 void findPath() {
-  // sine wave of increasing amplitude with time
     control.Update();
     uint16_t* sensorValues = control.getSensorValues();
     for (int i = 0; i < 8; i++) {
@@ -94,12 +94,11 @@ void findPath() {
         return;
       }
     }
-    if (millis() - start_time < SEARCH_TIME) { // left curve
-      driveOut(LOW, LOW, MAX_SPEED / 2, MAX_SPEED);
-    } else { //right curve
-      driveOut(LOW, LOW, MAX_SPEED, MAX_SPEED / 2);
+    if (millis() - start_time < SEARCH_TIME) { // right curve
+      driveOut(LOW, LOW, MAX_SPEED, 20);
+    } else { //left curve
+      driveOut(LOW, LOW, 20, MAX_SPEED);
     }
-    
 }
 
 void donut() {
@@ -109,8 +108,8 @@ void donut() {
   }
   driveOut(LOW, HIGH, DONUT_SPEED, DONUT_SPEED);
   delay(DONUT_TIME);
-  driveOut(LOW, LOW, MAX_SPEED, MAX_SPEED);
-  delay(150);
+//  driveOut(LOW, LOW, DONUT_SPEED, DONUT_SPEED);
+//  delay(150);
   goingOut = false;
   state = FOLLOW_PATH;
 }
@@ -124,6 +123,16 @@ bool isAtEndOfPath() {
 		}
 	}
 	return (total >= MIN_ON_DARK);
+}
+
+bool offPath() {
+  uint16_t* sensorValues = control.getSensorValues();
+  for (int i = 0; i < 8; i++) {
+    if (abs(sensorValues[i]) >= ON_DARK_VALUE) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // Actually output drive commands. Makes it easy to comment out output and collect test data
